@@ -1,3 +1,4 @@
+<h1>PaintWar</h1>
 This plugin is a minigame that is sort of like paintball, but instead of shooting other players, you try to cover the ground in "paint."
 
 <h3>Features/Commands</h3>
