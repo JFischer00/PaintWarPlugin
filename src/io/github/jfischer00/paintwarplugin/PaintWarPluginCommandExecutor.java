@@ -25,7 +25,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
 		//Start a PaintWar game (/pwstart)
-		if (cmd.getName().equalsIgnoreCase("pwstart")) {
+		if (args[0].equalsIgnoreCase("start")) {
 			//If there is no game running...
 			if (!paintwar.gameStarted) {
 				//...start one
@@ -40,7 +40,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//Join a PaintWar game (/pwjoin)
-		else if (cmd.getName().equalsIgnoreCase("pwjoin")) {
+		else if (args[0].equalsIgnoreCase("join")) {
 			//If there is a game running...
 			if (paintwar.gameStarted) {
 				//...and if you are a player...
@@ -110,7 +110,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//Stop a PaintWar game (/pwstop)
-		else if (cmd.getName().equalsIgnoreCase("pwstop")) {
+		else if (args[0].equalsIgnoreCase("stop")) {
 			//If there is a game running...
 			if (paintwar.gameStarted) {
 				//...stop it
@@ -137,7 +137,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//List players in a PaintWar game (/pwlist)
-		else if (cmd.getName().equalsIgnoreCase("pwlist")) {
+		else if (args[0].equalsIgnoreCase("list")) {
 			//If there is a game running...
 			if (paintwar.gameStarted) {
 				//...list players
@@ -167,7 +167,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//Leave a PaintWar game (/pwleave)
-		else if (cmd.getName().equalsIgnoreCase("pwleave")) {
+		else if (args[0].equalsIgnoreCase("leave")) {
 			//If you are a player...
 			if (sender instanceof Player) {
 				//...and you are in the game...
@@ -195,7 +195,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//Check a PaintWar game status (/pwstatus)
-		else if (cmd.getName().equalsIgnoreCase("pwstatus")) {
+		else if (args[0].equalsIgnoreCase("status")) {
 			if (paintwar.gameStarted) {
 				sendMessage(sender, ChatColor.GREEN + "A PaintWar game is running.");
 				return true;

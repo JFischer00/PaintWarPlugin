@@ -22,7 +22,7 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		//Add all commands
-		String[] commands = {"pwstart", "pwjoin", "pwstop", "pwlist", "pwleave", "pwstatus"};
+		String[] commands = {"pw"};
 
 		for (int i = 0; i < commands.length; i++) {
 			getCommand(commands[i]).setExecutor(new PaintWarPluginCommandExecutor(this));
@@ -80,9 +80,8 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 		Player player = e.getPlayer();
 
 		if (players.contains(player)) {
-			if (e.getMaterial().equals(Material.SNOW_BALL)) {
+			if (e.getMaterial().name().equals("IRON_BARDING")) {
 				player.launchProjectile(Snowball.class);
-				e.setCancelled(true);
 			}
 		}
 	}
