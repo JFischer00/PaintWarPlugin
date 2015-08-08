@@ -2,33 +2,8 @@ name: PaintWar
 main: io.github.jfischer00.paintwarplugin.PaintWarPlugin
 version: 1.0
 commands:
-  pwstart:
-    description: Start a game of PaintWar.
-    usage: /<command>
-    permission: <plugin name>.start
-    permission-message: You may not start PaintWar games.
-  pwjoin:
-    description: Join a PaintWar game.
-    usage: /<command>
-    permission: <plugin name>.join
-    permission-message: You may not join PaintWar games.
-  pwstop:
-    description: Stops running PaintWar game.
-    usage: /<command>
-    permission: <plugin name>.stop
-    permission-message: You may not stop PaintWar games.
-  pwlist:
-    description: Lists players in a PaintWar game.
-    usage: /<command>
-    permission: <plugin name>.list
-    permission-message: You may not list PaintWar players.
-  pwleave:
-    description: Leave a PaintWar game.
-    usage: /<command>
-    permission: <plugin name>.leave
-    permission-message: You may not leave PaintWar games.
-  pwstatus:
-    description: Check a PaintWar game's status.
-    usage: /<command>
-    permission: <plugin name>.status
-    permission-message: You may not check PaintWar games' statuses.
+  pw:
+    description: PaintWar base command.
+    usage: /<command> [action]
+    permission: <plugin name>.use
+    permission-message: You may not manage PaintWar.

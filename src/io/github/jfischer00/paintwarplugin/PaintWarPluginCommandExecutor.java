@@ -1,14 +1,13 @@
 package io.github.jfischer00.paintwarplugin;
 
-import java.util.Random;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
 
 public class PaintWarPluginCommandExecutor implements CommandExecutor {
 	PaintWarPlugin paintwar;
@@ -23,237 +22,219 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-
-		//Start a PaintWar game (/pwstart)
-		if (args[0].equalsIgnoreCase("start")) {
-			//If there is no game running...
-			if (!paintwar.gameStarted) {
-				//...start one
-				paintwar.gameStarted = true;
-				sendMessage(sender, ChatColor.GREEN + "PaintWar game started! Join using /pwjoin");
-				return true;
+			
+		if (args.length == 0) {
+			String message = "" + ChatColor.DARK_BLUE + ChatColor.BOLD + "PaintWar Commands and Usage:\n" + ChatColor.RESET + ChatColor.YELLOW +
+							 "    start: Start a PaintWar game.\n" +
+							 "    stop: Stop a PaintWar game.\n" +
+							 "    join: Join a PaintWar game.\n" +
+							 "    leave: Leave a PaintWar game.\n" +
+							 "    list: List all players in a PaintWar game.\n" +
+							 "    status: Show the status of a PaintWar game.";
+			
+			sendMessage(sender, message);
+		}
+		//Create a PaintWar game (/pw create)
+		else if (args[0].equalsIgnoreCase("create")) {
+			if (args.length == 2) {
+				if (!paintwar.games.containsKey(args[1])) {
+					PaintWarGame game = new PaintWarGame(paintwar, args[1]);
+					paintwar.games.put(game.GetName(), game);
+					
+					sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " has been created! Start it using /pw start " + game.GetName() + ".");
+				}
+				else {
+					sendMessage(sender, ChatColor.RED + "A PaintWar game with that name already exists!");
+				}
 			}
-			//Game already started
 			else {
-				sendMessage(sender, ChatColor.RED + "A PaintWar is already running!");
-				return false;
+				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw create <name>");
+			}
+		}
+		else if (args[0].equalsIgnoreCase("start")) {
+			if (args.length == 2) {
+				if (paintwar.games.containsKey(args[1])) {
+					PaintWarGame game = paintwar.games.get(args[1]);
+					if (game.Start()) {
+						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + args[1] + " has been started! Join using /pw join " + args[1] + ".");
+					}
+					else {
+						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + args[1] + " has already been started! Join using /pw join " + args[1] + ".");
+					}
+				}
+				else {
+					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+				}
+			}
+			else {
+				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw start <name>");
 			}
 		}
 		//Join a PaintWar game (/pwjoin)
 		else if (args[0].equalsIgnoreCase("join")) {
-			//If there is a game running...
-			if (paintwar.gameStarted) {
-				//...and if you are a player...
-				if (sender instanceof Player) {
-					//...and if you are not already in a game...
-					if (!paintwar.players.contains(sender)) {
-						//...join the game
-						Player currentPlayer = (Player)sender;
-
-						int redCount = 0;
-						int blueCount = 0;
-
-						//Get each team's player count
-						for (int i = 0; i < paintwar.players.size(); i++) {
-							if (paintwar.players.get(i).getMetadata("team").get(0).asString().equalsIgnoreCase("red")) {
-								redCount++;
-							}
-							else if (paintwar.players.get(i).getMetadata("team").get(0).asString().equalsIgnoreCase("blue")) {
-								blueCount++;
-							}
-						}
-
-						//Choose team based on player count
-						if (redCount > blueCount) {
-							currentPlayer.setMetadata("team", new FixedMetadataValue(paintwar, "blue"));
-							paintwar.players.add(currentPlayer);
-						}
-						else if (blueCount > redCount) {
-							currentPlayer.setMetadata("team", new FixedMetadataValue(paintwar, "red"));
-							paintwar.players.add(currentPlayer);
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				
+				if (args.length == 2) {
+					if (paintwar.games.containsKey(args[1])) {
+						PaintWarGame game = paintwar.games.get(args[1]);
+						if (game.Join(player)) {
+							sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " joined! You are on the " + game.GetTeam(player) + " team.");
 						}
 						else {
-							Random rand = new Random();
-
-							if (rand.nextInt(2) == 0) {
-								currentPlayer.setMetadata("team", new FixedMetadataValue(paintwar, "red"));
-								paintwar.players.add(currentPlayer);
-							}
-							else {
-								currentPlayer.setMetadata("team", new FixedMetadataValue(paintwar, "blue"));
-								paintwar.players.add(currentPlayer);
-							}
+							sendMessage(sender, ChatColor.RED + "You are already in a PaintWar game!");
 						}
-
-						currentPlayer.getInventory().clear();
-						currentPlayer.getItemInHand().setType(Material.SNOW_BALL);
-
-						sendMessage(sender, ChatColor.GREEN + "PaintWar game joined! You are on team " + currentPlayer.getMetadata("team").get(0).asString() + ".");
-						return true;
 					}
-					//You are already in a game
 					else {
-						sendMessage(sender, ChatColor.RED + "You are already in a game!");
-						return false;
+						sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 					}
 				}
-				//You are not a player
 				else {
-					sendMessage(sender, ChatColor.RED + "Only players can join PaintWar games.");
-					return false;
+					sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw join <name>");
 				}
 			}
-			//No game started
 			else {
-				sendMessage(sender, ChatColor.RED + "No PaintWar game is currently running!");
-				return false;
+				sendMessage(sender, ChatColor.RED + "Only players can join PaintWar games.");
 			}
 		}
-		//Stop a PaintWar game (/pwstop)
+		//Stop a PaintWar game (/pw stop)
 		else if (args[0].equalsIgnoreCase("stop")) {
-			//If there is a game running...
-			if (paintwar.gameStarted) {
-				//...stop it
-				paintwar.gameStarted = false;
-
-				for (int x = 0; x < paintwar.players.size(); x++) {
-					RestoreInventory(paintwar.players.get(x));
-				}
-				
-				//Clear metadata
-				for (int i = 0; i < paintwar.players.size(); i++) {
-					paintwar.players.get(i).removeMetadata("team", paintwar);
-				}
-				
-				paintwar.players.clear();
-
-				sendMessage(sender, ChatColor.RED + "PaintWar game stopped!");
-				return true;
-			}
-			//No game started
-			else {
-				sendMessage(sender, ChatColor.RED + "No PaintWar game is currently running!");
-				return false;
-			}
-		}
-		//List players in a PaintWar game (/pwlist)
-		else if (args[0].equalsIgnoreCase("list")) {
-			//If there is a game running...
-			if (paintwar.gameStarted) {
-				//...list players
-				String message = ChatColor.GREEN + "Players currently playing PaintWar:\n";
-
-				String redList = "";
-				String blueList = "";
-
-				for (int i = 0; i < paintwar.players.size(); i++) {
-					if (paintwar.players.get(i).getMetadata("team").get(0).asString().equalsIgnoreCase("red")) {
-						redList += paintwar.players.get(i).getDisplayName() + " ";
+			if (args.length == 2) {
+				if (paintwar.games.containsKey(args[1])) {
+					PaintWarGame game = paintwar.games.get(args[1]);
+					
+					if (game.Stop()) {
+						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " stopped!");
 					}
-					else if (paintwar.players.get(i).getMetadata("team").get(0).asString().equalsIgnoreCase("blue")) {
-						blueList += paintwar.players.get(i).getDisplayName() + " ";
+					else {
+						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");
 					}
 				}
-
-				message += ChatColor.RED + "  Red Team:\n  " + redList + "\n" + ChatColor.BLUE + "  Blue Team:\n  " + blueList;
-
-				sendMessage(sender, message);
-				return true;
-			}
-			//No game started
-			else {
-				sendMessage(sender, ChatColor.RED + "No PaintWar game is currently running!");
-				return false;
-			}
-		}
-		//Leave a PaintWar game (/pwleave)
-		else if (args[0].equalsIgnoreCase("leave")) {
-			//If you are a player...
-			if (sender instanceof Player) {
-				//...and you are in the game...
-				if (paintwar.players.contains((Player)sender)) {
-					//...leave the game
-					
-					RestoreInventory((Player)sender);
-					
-					paintwar.players.get(paintwar.players.indexOf(sender)).removeMetadata("team", paintwar);
-					paintwar.players.remove((Player)sender);
-
-					sendMessage(sender, ChatColor.GREEN + "You have left the PaintWar game.");
-					return true;
-				}
-				//You are not in the game
 				else {
-					sendMessage(sender, ChatColor.RED + "You are not in a PaintWar game!");
-					return false;
+					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 				}
 			}
-			//You are not a player
 			else {
-				sendMessage(sender, ChatColor.RED + "Only players can leave PaintWar games.");
-				return false;
+				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw stop <name>");
 			}
 		}
-		//Check a PaintWar game status (/pwstatus)
+		//List players in a PaintWar game (/pw list)
+		else if (args[0].equalsIgnoreCase("list")) {
+			if (args.length == 2) {
+				if (paintwar.games.containsKey(args[1])) {
+					PaintWarGame game = paintwar.games.get(args[1]);
+					Map<String, Player> players = game.GetPlayers();
+					String message = ChatColor.GREEN + "Players currently playing PaintWar:\n";
+					
+					String redList = "";
+					String blueList = "";
+					
+					for (Entry<String, Player> e : players.entrySet()) {
+						Player player = (Player) e.getValue();
+						String res = game.GetTeam(player);
+						
+						if (res.equals("red")) {
+							redList += player.getDisplayName().toString() + " ";
+						}
+						else if (res.equals("blue")) {
+							blueList += player.getDisplayName().toString() + " ";
+						}
+					}
+					
+					message += ChatColor.RED + "  Red Team:\n    " + redList + "\n" + ChatColor.BLUE + "  Blue Team:\n    " + blueList;
+					
+					sendMessage(sender, message);
+				}
+				else {
+					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+				}
+			}
+			else {
+				String message = ChatColor.GREEN + "PaintWar games:\n";
+				
+				int i = 0;
+				int size = paintwar.games.size();
+				
+				for (Entry<String, PaintWarGame> e : paintwar.games.entrySet()) {
+					i++;
+					
+					if (i == size) {
+						message += e.getKey();
+					}
+					else {
+						message += e.getKey() + ", ";
+					}
+				}
+				
+				sendMessage(sender, message);
+			}
+		}
+		//Leave a PaintWar game (/pw leave)
+		else if (args[0].equalsIgnoreCase("leave")) {
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				
+				if (args.length == 2) {
+					if (paintwar.games.containsKey(args[1])) {
+						PaintWarGame game = paintwar.games.get(args[1]);
+						
+						if (game.Leave(player)) {
+							sendMessage(sender, ChatColor.GREEN + "You have left PaintWar game with name " + game.GetName() + ".");
+						}
+						else {
+							sendMessage(sender, ChatColor.RED + "You are not in PaintWar game with name " + game.GetName() + "!");
+						}
+					}
+					else {
+						sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+					}
+				}
+				else {
+					sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw leave <name>");
+				}
+			}
+			else {
+				sendMessage(sender, ChatColor.RED + "You must be a player to leave PaintWar games!");
+			}
+		}
+		//Check a PaintWar game status (/pw status)
 		else if (args[0].equalsIgnoreCase("status")) {
-			if (paintwar.gameStarted) {
-				sendMessage(sender, ChatColor.GREEN + "A PaintWar game is running.");
-				return true;
+			if (args.length == 2) {
+				if (paintwar.games.containsKey(args[1])) {
+					PaintWarGame game = paintwar.games.get(args[1]);
+					
+					if (game.IsGameRunning()) {
+						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " is running!");
+					}
+					else {
+						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");
+					}
+				}
+				else {
+					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "A PaintWar game is not running.");
-				return false;
+				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw status <name>");
 			}
 		}
-		return false;
-	}
-
-	/*private void SaveInventory(Player player) {
-		
-		
-		YamlConfiguration config = new YamlConfiguration();
-		File file = new File(paintwar.getDataFolder() + "/" + player.getUniqueId() + "-inv.yml");
-
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-				paintwar.getLogger().log(Level.SEVERE, "File couldn't be created.");
+		else if (args[0].equalsIgnoreCase("delete")) {
+			if (args.length == 2) {
+				if (paintwar.games.containsKey(args[1])) {
+					PaintWarGame game = paintwar.games.get(args[1]);
+					
+					game.Remove();
+					
+					sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + args[1] + " deleted!");
+				}
+				else {
+					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+				}
+			}
+			else {
+				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw remove <name>");
 			}
 		}
-
-		try {
-			config.load(file);
-		} catch (IOException | InvalidConfigurationException e) {
-			e.printStackTrace();
-			paintwar.getLogger().log(Level.SEVERE, "Error loading file.");
-		}
-
-		if (!config.contains("inventory")) {
-			config.createSection("inventory");
-		}
-
-		ItemStack[] inv = player.getInventory().getContents();
-		
-		for (int i = 0; i < inv.length; i++) {
-			String[] data = {inv[i].getType().toString(), String.valueOf(inv[i].getAmount()), inv[i].getItemMeta().toString()};
-			config.set("inventory." + i, data);
-		}
-		
-		try {
-			config.save(paintwar.getDataFolder() + "/" + player.getUniqueId() + "-inv.yml");
-		} catch (IOException e) {
-			e.printStackTrace();
-			paintwar.getLogger().log(Level.SEVERE, "Could not save file.");
-		}
-	}*/
-	
-	private void RestoreInventory(Player player) {
-		if (paintwar.players.contains(player)) {
-			int index = paintwar.players.indexOf(player);
-			
-			player.getInventory().setContents(paintwar.players.get(index).getInventory().getContents());
-		}
+		return true;
 	}
 }

@@ -1,7 +1,7 @@
 package io.github.jfischer00.paintwarplugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,9 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BlockIterator;
 
 public final class PaintWarPlugin extends JavaPlugin implements Listener {
-	//Globals
-	boolean gameStarted = false;
-	List<Player> players = new ArrayList<Player>();
+	Map<String, PaintWarGame> games = new HashMap<String, PaintWarGame>();
 
 	@Override
 	public void onEnable() {
@@ -29,10 +27,14 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 		}
 
 		this.getServer().getPluginManager().registerEvents(this, this);
+		
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 	}
 
 	@Override
 	public void onDisable() {
+		saveConfig();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -47,7 +49,7 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 				Player shooter = (Player)snowball.getShooter();
 
 				//...if the player is in a game...
-				if (players.contains(shooter)) {
+				if (shooter.hasMetadata("team")) {
 					BlockIterator iterator = new BlockIterator(e.getEntity().getWorld(), e.getEntity().getLocation().toVector(), e.getEntity().getVelocity().normalize(), 0.0D, 4);
 
 					Block hitBlock = null;
@@ -79,7 +81,7 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	public void onSnowballThrow(PlayerInteractEvent e) {
 		Player player = e.getPlayer();
 
-		if (players.contains(player)) {
+		if (player.hasMetadata("team")) {
 			if (e.getMaterial().name().equals("IRON_BARDING")) {
 				player.launchProjectile(Snowball.class);
 			}
