@@ -8,6 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+
+import com.sk89q.worldedit.bukkit.selections.Selection;
 
 public class PaintWarPluginCommandExecutor implements CommandExecutor {
 	PaintWarPlugin paintwar;
@@ -25,6 +28,8 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			
 		if (args.length == 0) {
 			String message = "" + ChatColor.DARK_BLUE + ChatColor.BOLD + "PaintWar Commands and Usage:\n" + ChatColor.RESET + ChatColor.YELLOW +
+							 "    create: Create a PaintWar game.\n" +
+							 "    delete: Delete a PaintWar game.\n" +
 							 "    start: Start a PaintWar game.\n" +
 							 "    stop: Stop a PaintWar game.\n" +
 							 "    join: Join a PaintWar game.\n" +
@@ -37,14 +42,31 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 		//Create a PaintWar game (/pw create)
 		else if (args[0].equalsIgnoreCase("create")) {
 			if (args.length == 2) {
-				if (!paintwar.games.containsKey(args[1])) {
-					PaintWarGame game = new PaintWarGame(paintwar, args[1]);
-					paintwar.games.put(game.GetName(), game);
+				if (sender instanceof Player) {
+					Player p = (Player) sender;
+					Selection s = paintwar.getWorldEdit().getSelection(p);
 					
-					sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " has been created! Start it using /pw start " + game.GetName() + ".");
+					int minX, minY, minZ, maxX, maxY, maxZ;
+					
+					minX = s.getMinimumPoint().getBlockX();
+					minY = s.getMinimumPoint().getBlockY();
+					minZ = s.getMinimumPoint().getBlockZ();
+					maxX = s.getMaximumPoint().getBlockX();
+					maxY = s.getMaximumPoint().getBlockY();
+					maxZ = s.getMaximumPoint().getBlockZ();
+					
+					if (!paintwar.games.containsKey(args[1])) {
+						PaintWarGame game = new PaintWarGame(paintwar, args[1], new Vector(minX, minY, minZ), new Vector(maxX, maxY, maxZ));
+						paintwar.games.put(game.GetName(), game);
+						
+						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " created! Start it with /pw start " + game.GetName());
+					}
+					else {
+						sendMessage(sender, ChatColor.RED + "A PaintWar game with name " + args[1] + " already exists!");
+					}
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "A PaintWar game with that name already exists!");
+					sendMessage(sender, ChatColor.RED + "You must be a player to create PaintWar arenas!");
 				}
 			}
 			else {

@@ -8,10 +8,13 @@ import java.util.Random;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.util.Vector;
 
 public class PaintWarGame {
 	private String name;
 	private Map<String, Player> players;
+	private Vector minLocation = new Vector(0, 0, 0);
+	private Vector maxLocation = new Vector(0, 0, 0);
 	
 	private boolean gameStarted;
 	private int redCount;
@@ -26,6 +29,14 @@ public class PaintWarGame {
 		player.getItemInHand().setType(Material.IRON_BARDING);
 	}
 	
+	public Vector GetMinLocation() {
+		return minLocation;
+	}
+	
+	public Vector GetMaxLocation() {
+		return maxLocation;
+	}
+	
 	public boolean IsGameRunning() {
 		return gameStarted;
 	}
@@ -38,13 +49,21 @@ public class PaintWarGame {
 		return (HashMap<String, Player>) players;
 	}
 	
-	public PaintWarGame(PaintWarPlugin paintwar, String name) {
+	public PaintWarGame(PaintWarPlugin paintwar, String name, Vector minLocation, Vector maxLocation) {
 		this.paintwar = paintwar;
 		this.name = name;
+		this.minLocation = minLocation;
+		this.maxLocation = maxLocation;
 		players = new HashMap<String, Player>();
 		reset();
 		
-		//Add config stuff here
+		paintwar.getConfig().set(name + ".minlocation.x", minLocation.getX());
+		paintwar.getConfig().set(name + ".minlocation.y", minLocation.getY());
+		paintwar.getConfig().set(name + ".minlocation.z", minLocation.getZ());
+		
+		paintwar.getConfig().set(name + ".maxlocation.x", maxLocation.getX());
+		paintwar.getConfig().set(name + ".maxlocation.y", maxLocation.getY());
+		paintwar.getConfig().set(name + ".maxlocation.z", maxLocation.getZ());
 	}
 	
 	private void reset() {
@@ -140,6 +159,7 @@ public class PaintWarGame {
 		Stop();
 		
 		paintwar.games.remove(name);
+		paintwar.getConfig().set(name, null);
 	}
 	
 	public boolean Leave(Player player) {

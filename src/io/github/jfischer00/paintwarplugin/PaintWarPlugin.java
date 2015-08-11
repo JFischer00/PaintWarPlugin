@@ -1,8 +1,11 @@
 package io.github.jfischer00.paintwarplugin;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -11,8 +14,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BlockIterator;
+import org.bukkit.util.Vector;
+
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	Map<String, PaintWarGame> games = new HashMap<String, PaintWarGame>();
@@ -28,15 +35,52 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 
 		this.getServer().getPluginManager().registerEvents(this, this);
 		
-		getConfig().options().copyDefaults(true);
-		saveConfig();
+		LoadGames();
+	}
+	
+	private void LoadGames() {
+		List<Map<?, ?>> test = getConfig().getMapList("test");
+		
+		for (Map<?, ?> e : test) {
+			for (Entry<?, ?> i : e.entrySet()) {
+				System.out.println(i.getKey());
+			}
+		}
 	}
 
+	private void SaveGames() {
+		for (int i = 0; i < 6; i++) {
+			Vector minloc = new Vector(i, i, i);
+			Vector maxloc = new Vector(i + 1, i + 1, i + 1);
+			String name = "test" + i;
+			
+			getConfig().set("test." + name + ".minlocation.x", minloc.getX());
+			getConfig().set("test." + name + ".minlocation.y", minloc.getY());
+			getConfig().set("test." + name + ".minlocation.z", minloc.getZ());
+			
+			getConfig().set("test." + name + ".maxlocation.x", maxloc.getX());
+			getConfig().set("test." + name + ".maxlocation.y", maxloc.getY());
+			getConfig().set("test." + name + ".maxlocation.z", maxloc.getZ());
+		}
+	}
+	
 	@Override
 	public void onDisable() {
+		SaveGames();
 		saveConfig();
 	}
 
+	public WorldEditPlugin getWorldEdit() {
+		Plugin p = Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+		
+		if (p instanceof WorldEditPlugin) {
+			return (WorldEditPlugin) p;
+		}
+		else {
+			return null;
+		}
+	}
+	
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSnowballHit(ProjectileHitEvent e) {
