@@ -218,7 +218,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					PaintWarGame game = paintwar.games.get(args[1]);
 					
 					if (game.IsGameRunning()) {
-						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " is running!");
+						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " is running!\nTime Left: " + game.GetTimeLeft() + " seconds");
 					}
 					else {
 						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");

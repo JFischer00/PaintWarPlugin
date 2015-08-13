@@ -5,12 +5,48 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 public class PaintWarGame {
+	private int time;
+	private int taskID;
+	
+	private void setTimer(int amount) {
+		time = amount;
+	}
+	
+	public int GetTimeLeft() {
+		return time;
+	}
+	
+	private void startTimer() {
+		taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(paintwar, new Runnable() {
+			@Override
+			public void run() {
+				if (time == 0) {
+					Stop();
+					return;
+				}
+				
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					if (IsInGame(p)) {
+						p.setLevel(time);
+					}
+				}
+				
+				time--;
+			}
+		}, 0L, 20L);
+	}
+	
+	private void stopTimer() {
+		Bukkit.getScheduler().cancelTask(taskID);
+	}
+	
 	private String name;
 	private Map<String, Player> players;
 	private Vector minLocation = new Vector(0, 0, 0);
@@ -63,11 +99,14 @@ public class PaintWarGame {
 		gameStarted = false;
 		redCount = 0;
 		blueCount = 0;
+		time = 0;
 	}
 
 	public boolean Start() {
 		if (!gameStarted) {
 			gameStarted = true;
+			setTimer(300);
+			startTimer();
 			
 			return true;
 		}
@@ -83,6 +122,7 @@ public class PaintWarGame {
 			}
 			
 			reset();
+			stopTimer();
 			
 			return true;
 		}
