@@ -146,7 +146,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 				if (paintwar.games.containsKey(args[1])) {
 					PaintWarGame game = paintwar.games.get(args[1]);
 					Map<String, Player> players = game.GetPlayers();
-					String message = ChatColor.GREEN + "Players currently playing PaintWar:\n";
+					String message = ChatColor.GREEN + "Players currently playing PaintWar in arena " + game.GetName() + ":\n";
 					
 					String redList = "";
 					String blueList = "";
@@ -254,7 +254,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw remove <name>");
+				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw delete <name>");
 			}
 		}
 		return true;

@@ -56,14 +56,6 @@ public class PaintWarGame {
 		this.maxLocation = maxLocation;
 		players = new HashMap<String, Player>();
 		reset();
-		
-		paintwar.getConfig().set(name + ".minlocation.x", minLocation.getX());
-		paintwar.getConfig().set(name + ".minlocation.y", minLocation.getY());
-		paintwar.getConfig().set(name + ".minlocation.z", minLocation.getZ());
-		
-		paintwar.getConfig().set(name + ".maxlocation.x", maxLocation.getX());
-		paintwar.getConfig().set(name + ".maxlocation.y", maxLocation.getY());
-		paintwar.getConfig().set(name + ".maxlocation.z", maxLocation.getZ());
 	}
 	
 	private void reset() {

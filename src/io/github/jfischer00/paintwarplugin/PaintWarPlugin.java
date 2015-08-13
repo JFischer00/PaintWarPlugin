@@ -1,9 +1,11 @@
 package io.github.jfischer00.paintwarplugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -26,6 +28,8 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+		saveDefaultConfig();
+		
 		//Add all commands
 		String[] commands = {"pw"};
 
@@ -38,36 +42,98 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 		LoadGames();
 	}
 	
-	private void LoadGames() {
-		List<Map<?, ?>> test = getConfig().getMapList("test");
-		
-		for (Map<?, ?> e : test) {
-			for (Entry<?, ?> i : e.entrySet()) {
-				System.out.println(i.getKey());
-			}
-		}
-	}
-
-	private void SaveGames() {
-		for (int i = 0; i < 6; i++) {
-			Vector minloc = new Vector(i, i, i);
-			Vector maxloc = new Vector(i + 1, i + 1, i + 1);
-			String name = "test" + i;
-			
-			getConfig().set("test." + name + ".minlocation.x", minloc.getX());
-			getConfig().set("test." + name + ".minlocation.y", minloc.getY());
-			getConfig().set("test." + name + ".minlocation.z", minloc.getZ());
-			
-			getConfig().set("test." + name + ".maxlocation.x", maxloc.getX());
-			getConfig().set("test." + name + ".maxlocation.y", maxloc.getY());
-			getConfig().set("test." + name + ".maxlocation.z", maxloc.getZ());
-		}
-	}
-	
 	@Override
 	public void onDisable() {
 		SaveGames();
 		saveConfig();
+	}
+	
+	private void LoadGames() {
+		try {
+			@SuppressWarnings("unchecked")
+			List<Map<String, Map<String, Map<String, Integer>>>> arenas = (List<Map<String, Map<String, Map<String, Integer>>>>) getConfig().getList("arenas");
+			
+			for (int y = 0; y < arenas.size(); y++) {
+				Map<String, Map<String, Map<String, Integer>>> arena = arenas.get(y);
+				
+				for (Entry<String, Map<String, Map<String, Integer>>> e : arena.entrySet()) {
+					String name = e.getKey();
+					
+					Vector mincoords = new Vector(0, 0, 0);
+					Vector maxcoords = new Vector(0, 0, 0);
+					
+					Map<String, Map<String, Integer>> allcoords = e.getValue();
+					
+					for (Entry<String, Map<String, Integer>> e1 : allcoords.entrySet()) {
+						Map<String, Integer> coords = e1.getValue();
+						
+						for (Entry<String, Integer> e2 : coords.entrySet()) {
+							if (e1.getKey().equals("minlocation")) {
+								switch (e2.getKey()) {
+									case "x": mincoords.setX(e2.getValue());
+											  break;
+									case "y": mincoords.setY(e2.getValue());
+											  break;
+									case "z": mincoords.setZ(e2.getValue());
+											  break;
+									default: getLogger().log(Level.SEVERE, "Invalid coordinates");
+											 break;
+								}
+							}
+							else if (e1.getKey().equals("maxlocation")) {
+								switch (e2.getKey()) {
+									case "x": maxcoords.setX(e2.getValue());
+											  break;
+									case "y": maxcoords.setY(e2.getValue());
+											  break;
+									case "z": maxcoords.setZ(e2.getValue());
+											  break;
+									default: getLogger().log(Level.SEVERE, "Invalid coordinates");
+											 break;
+								}
+							}
+						}	
+					}
+					
+					PaintWarGame game = new PaintWarGame(this, name, mincoords, maxcoords);
+					
+					games.put(game.GetName(), game);
+				}
+			}
+		}
+		catch (NullPointerException e) {
+			
+		}
+	}
+
+	private void SaveGames() {
+		List<Map<String, Map<String, Map<String, Integer>>>> arenas = new ArrayList<Map<String, Map<String, Map<String, Integer>>>>();
+		
+		for (Entry<String, PaintWarGame> e : games.entrySet()) {
+			Map<String, Map<String, Map<String, Integer>>> arena = new HashMap<String, Map<String, Map<String, Integer>>>();
+			Map<String, Map<String, Integer>> allcoords = new HashMap<String, Map<String, Integer>>();
+			Map<String, Integer> mincoords = new HashMap<String, Integer>();
+			Map<String, Integer> maxcoords = new HashMap<String, Integer>();
+			
+			PaintWarGame game = e.getValue();
+			
+			mincoords.put("x", (int) game.GetMinLocation().getX());
+			mincoords.put("y", (int) game.GetMinLocation().getY());
+			mincoords.put("z", (int) game.GetMinLocation().getZ());
+			
+			maxcoords.put("x", (int) game.GetMaxLocation().getX());
+			maxcoords.put("y", (int) game.GetMaxLocation().getY());
+			maxcoords.put("z", (int) game.GetMaxLocation().getZ());
+			
+			allcoords.put("minlocation", mincoords);
+			allcoords.put("maxlocation", maxcoords);
+			
+			arena.put(game.GetName(), allcoords);
+			
+			arenas.add(arena);
+		}
+		
+		getConfig().set("arenas", arenas);
 	}
 
 	public WorldEditPlugin getWorldEdit() {

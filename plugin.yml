@@ -1,0 +1,9 @@
+name: PaintWar
+main: io.github.jfischer00.paintwarplugin.PaintWarPlugin
+version: 1.0
+commands:
+  pw:
+    description: PaintWar base command.
+    usage: /<command> [action]
+    permission: <plugin name>.use
+    permission-message: You may not manage PaintWar.
