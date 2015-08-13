@@ -1,9 +1,54 @@
 name: PaintWar
 main: io.github.jfischer00.paintwarplugin.PaintWarPlugin
+author: JFischer00
+website: http://dev.bukkit.org/bukkit-plugins/paint-war
+depend: [WorldEdit]
 version: 1.0
 commands:
   pw:
     description: PaintWar base command.
     usage: /<command> [action]
-    permission: <plugin name>.use
-    permission-message: You may not manage PaintWar.
+    permission: paintwar.use
+    permission-message: You may not use PaintWar.
+permissions:
+    paintwar.*:
+        children:
+            paintwar.use: true
+            paintwar.manage: true
+    paintwar.use:
+        default: true
+        children:
+            paintwar.join: true
+            paintwar.leave: true
+            paintwar.list: true
+            paintwar.status: true
+            paintwar.base: true
+    paintwar.manage:
+        children:
+            paintwar.create: true
+            paintwar.delete: true
+            paintwar.start: true
+            paintwar.stop: true
+            paintwar.status: true
+            paintwar.list: true
+            paintwar.base: true
+            paintwar.join: false
+            paintwar.leave: false
+    paintwar.base:
+        default: true
+    paintwar.create:
+        default: op
+    paintwar.delete:
+        default: op
+    paintwar.start:
+        default: op
+    paintwar.stop:
+        default: op
+    paintwar.list:
+        default: true
+    paintwar.status:
+        default: true
+    paintwar.join:
+        default: true
+    paintwar.leave:
+        default: true

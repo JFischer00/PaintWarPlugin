@@ -26,7 +26,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 			
-		if (args.length == 0) {
+		if (args.length == 0 && sender.hasPermission("paintwar.base")) {
 			String message = "" + ChatColor.DARK_BLUE + ChatColor.BOLD + "PaintWar Commands and Usage:\n" + ChatColor.RESET + ChatColor.YELLOW +
 							 "    create: Create a PaintWar game.\n" +
 							 "    delete: Delete a PaintWar game.\n" +
@@ -40,7 +40,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			sendMessage(sender, message);
 		}
 		//Create a PaintWar game (/pw create)
-		else if (args[0].equalsIgnoreCase("create")) {
+		else if (args[0].equalsIgnoreCase("create") && sender.hasPermission("paintwar.create")) {
 			if (args.length == 2) {
 				if (sender instanceof Player) {
 					Player p = (Player) sender;
@@ -73,7 +73,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw create <name>");
 			}
 		}
-		else if (args[0].equalsIgnoreCase("start")) {
+		else if (args[0].equalsIgnoreCase("start") && sender.hasPermission("paintwar.start")) {
 			if (args.length == 2) {
 				if (paintwar.games.containsKey(args[1])) {
 					PaintWarGame game = paintwar.games.get(args[1]);
@@ -92,8 +92,8 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw start <name>");
 			}
 		}
-		//Join a PaintWar game (/pwjoin)
-		else if (args[0].equalsIgnoreCase("join")) {
+		//Join a PaintWar game (/pw join)
+		else if (args[0].equalsIgnoreCase("join") && sender.hasPermission("paintwar.join")) {
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
 				
@@ -120,7 +120,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//Stop a PaintWar game (/pw stop)
-		else if (args[0].equalsIgnoreCase("stop")) {
+		else if (args[0].equalsIgnoreCase("stop") && sender.hasPermission("paintwar.stop")) {
 			if (args.length == 2) {
 				if (paintwar.games.containsKey(args[1])) {
 					PaintWarGame game = paintwar.games.get(args[1]);
@@ -141,7 +141,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//List players in a PaintWar game (/pw list)
-		else if (args[0].equalsIgnoreCase("list")) {
+		else if (args[0].equalsIgnoreCase("list") && sender.hasPermission("paintwar.list")) {
 			if (args.length == 2) {
 				if (paintwar.games.containsKey(args[1])) {
 					PaintWarGame game = paintwar.games.get(args[1]);
@@ -192,35 +192,27 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 			}
 		}
 		//Leave a PaintWar game (/pw leave)
-		else if (args[0].equalsIgnoreCase("leave")) {
+		else if (args[0].equalsIgnoreCase("leave") && sender.hasPermission("paintwar.leave")) {
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
 				
-				if (args.length == 2) {
-					if (paintwar.games.containsKey(args[1])) {
-						PaintWarGame game = paintwar.games.get(args[1]);
-						
-						if (game.Leave(player)) {
-							sendMessage(sender, ChatColor.GREEN + "You have left PaintWar game with name " + game.GetName() + ".");
-						}
-						else {
-							sendMessage(sender, ChatColor.RED + "You are not in PaintWar game with name " + game.GetName() + "!");
-						}
-					}
-					else {
-						sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+				for (Entry<String, PaintWarGame> e : paintwar.games.entrySet()) {
+					PaintWarGame game = e.getValue();
+					
+					if (game.IsInGame(player)) {
+						sendMessage(sender, ChatColor.GREEN + "You have successfully left PaintWar game " + game.GetName() + "!");
+						return true;
 					}
 				}
-				else {
-					sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw leave <name>");
-				}
+				
+				sendMessage(sender, ChatColor.RED + "You are not in a PaintWar game!");
 			}
 			else {
 				sendMessage(sender, ChatColor.RED + "You must be a player to leave PaintWar games!");
 			}
 		}
 		//Check a PaintWar game status (/pw status)
-		else if (args[0].equalsIgnoreCase("status")) {
+		else if (args[0].equalsIgnoreCase("status") && sender.hasPermission("paintwar.status")) {
 			if (args.length == 2) {
 				if (paintwar.games.containsKey(args[1])) {
 					PaintWarGame game = paintwar.games.get(args[1]);
@@ -240,7 +232,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw status <name>");
 			}
 		}
-		else if (args[0].equalsIgnoreCase("delete")) {
+		else if (args[0].equalsIgnoreCase("delete") && sender.hasPermission("paintwar.delete")) {
 			if (args.length == 2) {
 				if (paintwar.games.containsKey(args[1])) {
 					PaintWarGame game = paintwar.games.get(args[1]);
