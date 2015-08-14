@@ -6,7 +6,9 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
@@ -49,8 +51,9 @@ public class PaintWarGame {
 	
 	private String name;
 	private Map<String, Player> players;
-	private Vector minLocation = new Vector(0, 0, 0);
-	private Vector maxLocation = new Vector(0, 0, 0);
+	private World world;
+	private Location min;
+	private Location max;
 	
 	private boolean gameStarted;
 	private int redCount;
@@ -65,12 +68,24 @@ public class PaintWarGame {
 		player.getItemInHand().setType(Material.IRON_BARDING);
 	}
 	
+	public World GetWorld() {
+		return world;
+	}
+	
 	public Vector GetMinLocation() {
-		return minLocation;
+		return new Vector(min.getX(), min.getY(), min.getZ());
+	}
+	
+	public Location GetMinLocationLoc() {
+		return min;
 	}
 	
 	public Vector GetMaxLocation() {
-		return maxLocation;
+		return new Vector(max.getX(), max.getY(), max.getZ());
+	}
+	
+	public Location GetMaxLocationLoc() {
+		return max;
 	}
 	
 	public boolean IsGameRunning() {
@@ -85,11 +100,13 @@ public class PaintWarGame {
 		return (HashMap<String, Player>) players;
 	}
 	
-	public PaintWarGame(PaintWarPlugin paintwar, String name, Vector minLocation, Vector maxLocation) {
+	public PaintWarGame(PaintWarPlugin paintwar, String name, World world, Vector minLocation, Vector maxLocation) {
 		this.paintwar = paintwar;
 		this.name = name;
-		this.minLocation = minLocation;
-		this.maxLocation = maxLocation;
+		this.world = world;
+		
+		this.min = new Location(world, minLocation.getX(), minLocation.getY(), minLocation.getZ());
+		this.max = new Location(world, maxLocation.getX(), maxLocation.getY(), maxLocation.getZ());
 		players = new HashMap<String, Player>();
 		reset();
 	}

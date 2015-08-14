@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -55,8 +56,10 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					maxY = s.getMaximumPoint().getBlockY();
 					maxZ = s.getMaximumPoint().getBlockZ();
 					
+					World world = s.getWorld();
+					
 					if (!paintwar.games.containsKey(args[1])) {
-						PaintWarGame game = new PaintWarGame(paintwar, args[1], new Vector(minX, minY, minZ), new Vector(maxX, maxY, maxZ));
+						PaintWarGame game = new PaintWarGame(paintwar, args[1], world, new Vector(minX, minY, minZ), new Vector(maxX, maxY, maxZ));
 						paintwar.games.put(game.GetName(), game);
 						
 						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " created! Start it with /pw start " + game.GetName());
