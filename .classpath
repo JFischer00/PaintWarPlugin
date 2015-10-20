@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/jorda/Documents/Plugin Dev/bukkit-1.8.8-R0.1-SNAPSHOT-shaded.jar" sourcepath="C:/Users/jorda/Documents/Plugin Dev/java"/>
-	<classpathentry kind="lib" path="C:/Users/jorda/Documents/Plugin Dev/worldedit-bukkit-6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jorda/Documents/GitHub/PaintWarPlugin/bukkit-1.8.8-R0.1-SNAPSHOT-shaded.jar" sourcepath="C:/Users/jorda/Documents/Plugin Dev/java"/>
+	<classpathentry kind="lib" path="C:/Users/jorda/Documents/GitHub/PaintWarPlugin/worldedit-bukkit-6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
