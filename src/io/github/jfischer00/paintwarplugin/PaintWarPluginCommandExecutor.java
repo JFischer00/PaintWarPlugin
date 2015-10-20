@@ -114,19 +114,29 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 		}
 		// Join a PaintWar game (/pw join)
 		else if (args[0].equalsIgnoreCase("join") && sender.hasPermission("paintwar.join")) {
+			sendMessage(sender, "In paintwar.join");
+			
 			// Only players can join PaintWar games
 			if (sender instanceof Player) {
+				sendMessage(sender, "It's a player");
+				
 				// Get the player from the sender
 				Player player = (Player) sender;
 				
 				// Needs a name to join a game
 				if (args.length == 2) {
+					sendMessage(sender, "Got name");
+					
 					// Game needs to exist
 					if (paintwar.games.containsKey(args[1])) {
+						sendMessage(sender, "Game exists");
+						
 						// Get the game from the name
 						PaintWarGame game = paintwar.games.get(args[1]);
 						// Try to join the game
 						if (game.Join(player)) {
+							sendMessage(sender, "Joined");
+							
 							sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " joined! You are on the " + game.GetTeam(player) + " team.");
 						}
 						else {
