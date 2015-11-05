@@ -18,6 +18,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
@@ -25,13 +26,18 @@ import org.bukkit.util.Vector;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 
+import net.milkbowl.vault.economy.Economy;
+
 public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	// Map of games with names as keys
 	Map<String, PaintWarGame> games = new HashMap<String, PaintWarGame>();
 	
-	// Global (probably not) WorldEdit reference
+	// Plugin references
 	WorldEditPlugin worldedit = getWorldEdit();
+	Economy economy;
 
+	boolean useVault;
+	
 	@Override
 	public void onEnable() {
 		// Save the default config if no config exists
@@ -43,10 +49,15 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 		for (int i = 0; i < commands.length; i++) {
 			getCommand(commands[i]).setExecutor(new PaintWarPluginCommandExecutor(this));
 		}
-
+		
 		// Allow this class to handle events (probably not best practice, possible change?)
 		this.getServer().getPluginManager().registerEvents(this, this);
 
+		useVault = getConfig().getBoolean("config.useVault");
+		
+		if (useVault)
+			economy = getEconomy();
+		
 		// Load games from the config.yml
 		LoadGames();
 	}
@@ -55,6 +66,8 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	public void onDisable() {
 		//Save games to the config
 		SaveGames();
+		
+		getConfig().set("config.useVault", useVault);
 		
 		//Save the config
 		saveConfig();
@@ -241,6 +254,21 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 			return null;
 		}
 	}
+	
+	public Economy getEconomy() {
+		// Get the economy provider
+		RegisteredServiceProvider<Economy> ecoProvider = getServer().getServicesManager().getRegistration(Economy.class);
+		
+		// If it exists
+		if (ecoProvider != null) {
+			// Return it
+			return ecoProvider.getProvider();
+		}
+		else {
+			// Shouldn't happen (error handling location?)
+			return null;
+		}
+	}
 
 	@SuppressWarnings("deprecation")
 	@EventHandler
@@ -297,9 +325,11 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 								if (shooter.getMetadata("team").get(0).asString().equalsIgnoreCase("red")) {
 									// Red
 									hitBlock.setData((byte) 14);
+									game.AddScore("red", hitBlock.getLocation());
 								} else if (shooter.getMetadata("team").get(0).asString().equalsIgnoreCase("blue")) {
 									// Blue
 									hitBlock.setData((byte) 11);
+									game.AddScore("blue", hitBlock.getLocation());
 								}
 							}
 						}

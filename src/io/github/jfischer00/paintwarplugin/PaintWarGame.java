@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -64,6 +65,10 @@ public class PaintWarGame {
 	private World world;
 	private Location min;
 	private Location max;
+	
+	// Scores
+	private int redScore;
+	private int blueScore;
 	
 	// is game started, red players, and blue players
 	private boolean gameStarted;
@@ -144,6 +149,8 @@ public class PaintWarGame {
 		redCount = 0;
 		blueCount = 0;
 		time = 0;
+		redScore = 0;
+		blueScore = 0;
 	}
 
 	// Start it
@@ -163,13 +170,49 @@ public class PaintWarGame {
 		}
 	}
 	
+	private void givePlayerMoney(Player player, double amount) {
+		paintwar.economy.depositPlayer(player, amount);
+	}
+	
 	// Stop it
 	public boolean Stop() {
 		// Is it running?
 		if (gameStarted) {
-			// Get rid of the players?
+			String winner = "";
+			
+			// Determine winner
+			if (redScore > blueScore) {
+				winner = "red";
+			}
+			else if (blueScore > redScore) {
+				winner = "blue";
+			}
+			else {
+				winner = "tie";
+			}
+			
+			// Do win/lose and get rid of players
 			for (Entry<String, Player> e : players.entrySet()) {
-				Leave(e.getValue());
+				Player player = e.getValue();
+				
+				// Send message based on win, tie, or loss
+				if (GetTeam(player) == winner) {
+					if (paintwar.useVault) {
+						player.sendMessage(ChatColor.GREEN + "Congratulations! Your team won! You get $50!");
+						givePlayerMoney(player, 50.0);
+					}
+					else {
+						player.sendMessage(ChatColor.GREEN + "Congratulations! Your team won!");
+					}
+				}
+				else if (winner == "tie") {
+					player.sendMessage(ChatColor.YELLOW + "Well done. Your team tied.");
+				}
+				else {
+					player.sendMessage(ChatColor.RED + "So sorry. Your team lost.");
+				}
+				
+				Leave(player);
 			}
 			
 			// Reset everything
@@ -182,6 +225,31 @@ public class PaintWarGame {
 			// Nope
 			return false;
 		}
+	}
+
+	// Add team scores
+	@SuppressWarnings("deprecation")
+	public boolean AddScore(String team, Location loc) {
+		// If the block is stained clay
+		if (loc.getBlock().getType() == Material.STAINED_CLAY) {
+			// If the team and block are red
+			if (team == "red" && loc.getBlock().getData() == 14) {
+				// Add red team score
+				redScore++;
+			}
+			// If the team and block are blue
+			else if (team == "blue" && loc.getBlock().getData() == 11) {
+				// Add blue team score
+				blueScore++;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+		return true;
 	}
 	
 	// Join the game

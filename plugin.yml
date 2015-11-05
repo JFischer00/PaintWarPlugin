@@ -2,7 +2,7 @@ name: PaintWar
 main: io.github.jfischer00.paintwarplugin.PaintWarPlugin
 author: JFischer00
 website: http://dev.bukkit.org/bukkit-plugins/paint-war
-depend: [WorldEdit]
+depend: [WorldEdit, Vault, Essentials]
 version: 1.0
 commands:
   pw:
