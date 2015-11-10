@@ -86,6 +86,8 @@ public class PaintWarGame {
 		// Clear their inventory and give them the "gun"
 		player.getInventory().clear();
 		player.getItemInHand().setType(Material.IRON_BARDING);
+		
+		System.out.println("Blue: " + blueCount + "\nRed: " + redCount);
 	}
 	
 	// Which world is it in?
@@ -257,8 +259,9 @@ public class PaintWarGame {
 		// Are they in a game already?
 		if (!player.hasMetadata("team")) {
 			// Put them on a team and get them in the game
-			setTeam(player);
 			addPlayer(player);
+			
+			player.teleport(new Location(this.GetWorld(), ((this.GetMaxLocationLoc().getX() + this.GetMinLocationLoc().getX()) / 2), ((this.GetMaxLocationLoc().getY() + this.GetMinLocationLoc().getY()) / 2), ((this.GetMaxLocationLoc().getZ() + this.GetMinLocationLoc().getZ()) / 2)));
 			
 			return true;
 		}

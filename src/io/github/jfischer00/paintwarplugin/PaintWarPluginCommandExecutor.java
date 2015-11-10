@@ -22,11 +22,6 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 		paintwar = plugin;
 	}
 
-	// Utility for sending messages to console and player
-	public void sendMessage(CommandSender sender, String message) {
-		sender.sendMessage(message);
-	}
-
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		// Help command (/pw)
@@ -41,7 +36,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 							 "    list: List all players in a PaintWar game.\n" +
 							 "    status: Show the status of a PaintWar game.";
 			
-			sendMessage(sender, message);
+			paintwar.sendMessage(sender, message);
 		}
 		// Create a PaintWar game (/pw create)
 		else if (args[0].equalsIgnoreCase("create") && sender.hasPermission("paintwar.create")) {
@@ -74,18 +69,18 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 						PaintWarGame game = new PaintWarGame(paintwar, args[1], world, new Vector(minX, minY, minZ), new Vector(maxX, maxY, maxZ));
 						paintwar.games.put(game.GetName(), game);
 						
-						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " created! Start it with /pw start " + game.GetName());
+						paintwar.sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " created! Start it with /pw start " + game.GetName());
 					}
 					else {
-						sendMessage(sender, ChatColor.RED + "A PaintWar game with name " + args[1] + " already exists!");
+						paintwar.sendMessage(sender, ChatColor.RED + "A PaintWar game with name " + args[1] + " already exists!");
 					}
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "You must be a player to create PaintWar arenas!");
+					paintwar.sendMessage(sender, ChatColor.RED + "You must be a player to create PaintWar arenas!");
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw create <name>");
+				paintwar.sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw create <name>");
 			}
 		}
 		// Start a PaintWar game (/pw start)
@@ -98,61 +93,55 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					PaintWarGame game = paintwar.games.get(args[1]);
 					// Try to start it
 					if (game.Start()) {
-						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + args[1] + " has been started! Join using /pw join " + args[1] + ".");
+						paintwar.sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + args[1] + " has been started! Join using /pw join " + args[1] + ".");
 					}
 					else {
-						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + args[1] + " has already been started! Join using /pw join " + args[1] + ".");
+						paintwar.sendMessage(sender, ChatColor.RED + "PaintWar game with name " + args[1] + " has already been started! Join using /pw join " + args[1] + ".");
 					}
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+					paintwar.sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw start <name>");
+				paintwar.sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw start <name>");
 			}
 		}
 		// Join a PaintWar game (/pw join)
 		else if (args[0].equalsIgnoreCase("join") && sender.hasPermission("paintwar.join")) {
-			sendMessage(sender, "In paintwar.join");
 			
 			// Only players can join PaintWar games
 			if (sender instanceof Player) {
-				sendMessage(sender, "It's a player");
 				
 				// Get the player from the sender
 				Player player = (Player) sender;
 				
 				// Needs a name to join a game
 				if (args.length == 2) {
-					sendMessage(sender, "Got name");
 					
 					// Game needs to exist
 					if (paintwar.games.containsKey(args[1])) {
-						sendMessage(sender, "Game exists");
 						
 						// Get the game from the name
 						PaintWarGame game = paintwar.games.get(args[1]);
 						// Try to join the game
 						if (game.Join(player)) {
-							sendMessage(sender, "Joined");
-							
-							sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " joined! You are on the " + game.GetTeam(player) + " team.");
+							paintwar.sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " joined! You are on the " + game.GetTeam(player) + " team.");
 						}
 						else {
-							sendMessage(sender, ChatColor.RED + "You are already in a PaintWar game!");
+							paintwar.sendMessage(sender, ChatColor.RED + "You are already in a PaintWar game!");
 						}
 					}
 					else {
-						sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+						paintwar.sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 					}
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw join <name>");
+					paintwar.sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw join <name>");
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Only players can join PaintWar games.");
+				paintwar.sendMessage(sender, ChatColor.RED + "Only players can join PaintWar games.");
 			}
 		}
 		// Stop a PaintWar game (/pw stop)
@@ -165,18 +154,18 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					PaintWarGame game = paintwar.games.get(args[1]);
 					// Try to stop the game
 					if (game.Stop()) {
-						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " stopped!");
+						paintwar.sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " stopped!");
 					}
 					else {
-						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");
+						paintwar.sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");
 					}
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+					paintwar.sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw stop <name>");
+				paintwar.sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw stop <name>");
 			}
 		}
 		// List players in a PaintWar game (/pw list)
@@ -216,10 +205,10 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					message += ChatColor.RED + "  Red Team:\n    " + redList + "\n" + ChatColor.BLUE + "  Blue Team:\n    " + blueList;
 					
 					// Send the message
-					sendMessage(sender, message);
+					paintwar.sendMessage(sender, message);
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+					paintwar.sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 				}
 			}
 			// Otherwise list the games
@@ -247,7 +236,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 				}
 				
 				// Send the message
-				sendMessage(sender, message);
+				paintwar.sendMessage(sender, message);
 			}
 		}
 		// Leave a PaintWar game (/pw leave)
@@ -266,15 +255,15 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					if (game.IsInGame(player)) {
 						// Leave the game
 						game.Leave(player);
-						sendMessage(sender, ChatColor.GREEN + "You have successfully left PaintWar game " + game.GetName() + "!");
+						paintwar.sendMessage(sender, ChatColor.GREEN + "You have successfully left PaintWar game " + game.GetName() + "!");
 						return true;
 					}
 				}
 				
-				sendMessage(sender, ChatColor.RED + "You are not in a PaintWar game!");
+				paintwar.sendMessage(sender, ChatColor.RED + "You are not in a PaintWar game!");
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "You must be a player to leave PaintWar games!");
+				paintwar.sendMessage(sender, ChatColor.RED + "You must be a player to leave PaintWar games!");
 			}
 		}
 		// Check a PaintWar game status (/pw status)
@@ -288,18 +277,18 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					
 					// Is it running?
 					if (game.IsGameRunning()) {
-						sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " is running!\nTime Left: " + game.GetTimeLeft() + " seconds");
+						paintwar.sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + game.GetName() + " is running!\nTime Left: " + game.GetTimeLeft() + " seconds");
 					}
 					else {
-						sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");
+						paintwar.sendMessage(sender, ChatColor.RED + "PaintWar game with name " + game.GetName() + " is not running!");
 					}
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+					paintwar.sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw status <name>");
+				paintwar.sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw status <name>");
 			}
 		}
 		// Delete a PaintWar game (/pw delete)
@@ -314,14 +303,14 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					// Goodbye!
 					game.Remove();
 					
-					sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + args[1] + " deleted!");
+					paintwar.sendMessage(sender, ChatColor.GREEN + "PaintWar game with name " + args[1] + " deleted!");
 				}
 				else {
-					sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
+					paintwar.sendMessage(sender, ChatColor.RED + "No PaintWar game with name " + args[1] + " exists!");
 				}
 			}
 			else {
-				sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw delete <name>");
+				paintwar.sendMessage(sender, ChatColor.RED + "Incorrect arguments! Usage: /pw delete <name>");
 			}
 		}
 		return true;

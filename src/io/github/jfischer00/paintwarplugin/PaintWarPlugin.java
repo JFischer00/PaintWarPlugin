@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -50,8 +51,11 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 			getCommand(commands[i]).setExecutor(new PaintWarPluginCommandExecutor(this));
 		}
 		
+		SignsHandler signHandler = new SignsHandler(this);
+		
 		// Allow this class to handle events (probably not best practice, possible change?)
 		this.getServer().getPluginManager().registerEvents(this, this);
+		this.getServer().getPluginManager().registerEvents(signHandler, this);
 
 		useVault = getConfig().getBoolean("config.useVault");
 		
@@ -73,6 +77,15 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 		saveConfig();
 	}
 
+	// Utility for sending messages to console and player
+	public void sendMessage(CommandSender sender, String message) {
+		sender.sendMessage(message);
+	}
+	
+	public void sendMessage(Player player, String message) {
+		player.sendMessage(message);
+	}
+	
 	private void LoadGames() {
 		// Get list of arenas from config (suppressing because I know what type it is [or I can blame the user :D])
 		@SuppressWarnings("unchecked")
