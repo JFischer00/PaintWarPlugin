@@ -10,7 +10,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
@@ -61,7 +63,7 @@ public class PaintWarGame {
 	
 	// Name, players, world, location
 	private String name;
-	private Map<String, Player> players;
+	private Map<String, PlayerData> players;
 	private World world;
 	private Location min;
 	private Location max;
@@ -85,7 +87,7 @@ public class PaintWarGame {
 		
 		// Clear their inventory and give them the "gun"
 		player.getInventory().clear();
-		player.getItemInHand().setType(Material.IRON_BARDING);
+		player.getInventory().setItemInMainHand(new ItemStack(Material.IRON_BARDING, 1));
 		
 		System.out.println("Blue: " + blueCount + "\nRed: " + redCount);
 	}
@@ -126,8 +128,8 @@ public class PaintWarGame {
 	}
 	
 	// Who's playing in this game?
-	public HashMap<String, Player> GetPlayers() {
-		return (HashMap<String, Player>) players;
+	public HashMap<String, PlayerData> GetPlayerData() {
+		return (HashMap<String, PlayerData>) players;
 	}
 	
 	// Constructor
@@ -138,7 +140,7 @@ public class PaintWarGame {
 		this.world = world;
 		this.min = new Location(world, minLocation.getX(), minLocation.getY(), minLocation.getZ());
 		this.max = new Location(world, maxLocation.getX(), maxLocation.getY(), maxLocation.getZ());
-		players = new HashMap<String, Player>();
+		players = new HashMap<String, PlayerData>();
 		
 		// Reset
 		reset();
@@ -153,6 +155,28 @@ public class PaintWarGame {
 		time = 0;
 		redScore = 0;
 		blueScore = 0;
+		
+		int currentX = min.getBlockX();
+		int currentZ = min.getBlockZ();
+		
+		int maxX = max.getBlockX();
+		int maxZ = max.getBlockZ();
+		
+		Block b;
+		
+		while (currentX <= maxX) {
+			while (currentZ <= maxZ) {
+				b = world.getBlockAt(currentX, min.getBlockY(), currentZ);
+				
+				if (b.getType().equals(Material.STAINED_CLAY))
+					b.setType(Material.GRASS);
+				
+				currentZ++;
+			}
+			
+			currentX++;
+			currentZ = min.getBlockZ();
+		}
 	}
 
 	// Start it
@@ -177,6 +201,7 @@ public class PaintWarGame {
 	}
 	
 	// Stop it
+	@SuppressWarnings("deprecation")
 	public boolean Stop() {
 		// Is it running?
 		if (gameStarted) {
@@ -194,8 +219,10 @@ public class PaintWarGame {
 			}
 			
 			// Do win/lose and get rid of players
-			for (Entry<String, Player> e : players.entrySet()) {
-				Player player = e.getValue();
+			for (Entry<String, PlayerData> e : players.entrySet()) {
+				PlayerData data = e.getValue();
+				
+				Player player = Bukkit.getPlayer(data.getName());
 				
 				// Send message based on win, tie, or loss
 				if (GetTeam(player) == winner) {
@@ -277,13 +304,13 @@ public class PaintWarGame {
 		if (redCount > blueCount) {
 			// Put them on blue
 			player.setMetadata("team", new FixedMetadataValue(paintwar, "blue"));
-			players.put(player.getName(), player);
+			players.put(player.getName(), new PlayerData(player.getName(), player.getInventory().getContents(), player.getLevel()));
 			blueCount++;
 		}
 		else if (blueCount > redCount) {
 			// Put them on red
 			player.setMetadata("team", new FixedMetadataValue(paintwar, "red"));
-			players.put(player.getName(), player);
+			players.put(player.getName(), new PlayerData(player.getName(), player.getInventory().getContents(), player.getLevel()));
 			redCount++;
 		}
 		else {
@@ -294,13 +321,13 @@ public class PaintWarGame {
 			if (rand.nextInt(2) == 0) {
 				// Red
 				player.setMetadata("team", new FixedMetadataValue(paintwar, "red"));
-				players.put(player.getName(), player);
+				players.put(player.getName(), new PlayerData(player.getName(), player.getInventory().getContents(), player.getLevel()));
 				redCount++;
 			}
 			else {
 				// Blue
 				player.setMetadata("team", new FixedMetadataValue(paintwar, "blue"));
-				players.put(player.getName(), player);
+				players.put(player.getName(), new PlayerData(player.getName(), player.getInventory().getContents(), player.getLevel()));
 				blueCount++;
 			}
 		}
@@ -367,6 +394,7 @@ public class PaintWarGame {
 	
 	// Give players back their inventory
 	private void restoreInventory(Player player) {
-		player.getInventory().setContents(players.get(player.getName()).getInventory().getContents());
+		player.getInventory().setContents(players.get(player.getName()).getInventory());
+		player.setLevel(players.get(player.getName()).getExp());
 	}
 }

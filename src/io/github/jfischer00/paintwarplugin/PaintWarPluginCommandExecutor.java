@@ -3,6 +3,7 @@ package io.github.jfischer00.paintwarplugin;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -22,6 +23,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 		paintwar = plugin;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		// Help command (/pw)
@@ -177,7 +179,7 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					// Get the-you know what, forget it
 					PaintWarGame game = paintwar.games.get(args[1]);
 					// Get the players from the game
-					Map<String, Player> players = game.GetPlayers();
+					Map<String, PlayerData> players = game.GetPlayerData();
 					// Start forming the message
 					String message = ChatColor.GREEN + "Players currently playing PaintWar in arena " + game.GetName() + ":\n";
 					
@@ -186,9 +188,10 @@ public class PaintWarPluginCommandExecutor implements CommandExecutor {
 					String blueList = "";
 					
 					// Loop through the players in the game
-					for (Entry<String, Player> e : players.entrySet()) {
+					for (Entry<String, PlayerData> e : players.entrySet()) {
 						// Make a Player
-						Player player = (Player) e.getValue();
+						PlayerData data = e.getValue();
+						Player player = Bukkit.getPlayer(data.getName());
 						// Get their team
 						String res = game.GetTeam(player);
 						

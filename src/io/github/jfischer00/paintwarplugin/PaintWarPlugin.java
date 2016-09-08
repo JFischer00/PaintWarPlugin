@@ -32,13 +32,13 @@ import net.milkbowl.vault.economy.Economy;
 public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	// Map of games with names as keys
 	Map<String, PaintWarGame> games = new HashMap<String, PaintWarGame>();
-	
+
 	// Plugin references
 	WorldEditPlugin worldedit = getWorldEdit();
 	Economy economy;
 
 	boolean useVault;
-	
+
 	@Override
 	public void onEnable() {
 		// Save the default config if no config exists
@@ -50,30 +50,31 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 		for (int i = 0; i < commands.length; i++) {
 			getCommand(commands[i]).setExecutor(new PaintWarPluginCommandExecutor(this));
 		}
-		
+
 		SignsHandler signHandler = new SignsHandler(this);
-		
-		// Allow this class to handle events (probably not best practice, possible change?)
+
+		// Allow this class to handle events (probably not best practice,
+		// possible change?)
 		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getServer().getPluginManager().registerEvents(signHandler, this);
 
 		useVault = getConfig().getBoolean("config.useVault");
-		
+
 		if (useVault)
 			economy = getEconomy();
-		
+
 		// Load games from the config.yml
 		LoadGames();
 	}
 
 	@Override
 	public void onDisable() {
-		//Save games to the config
+		// Save games to the config
 		SaveGames();
-		
+
 		getConfig().set("config.useVault", useVault);
-		
-		//Save the config
+
+		// Save the config
 		saveConfig();
 	}
 
@@ -81,13 +82,14 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 	public void sendMessage(CommandSender sender, String message) {
 		sender.sendMessage(message);
 	}
-	
+
 	public void sendMessage(Player player, String message) {
 		player.sendMessage(message);
 	}
-	
+
 	private void LoadGames() {
-		// Get list of arenas from config (suppressing because I know what type it is [or I can blame the user :D])
+		// Get list of arenas from config (suppressing because I know what type
+		// it is [or I can blame the user :D])
 		@SuppressWarnings("unchecked")
 		List<Object> arenas = (List<Object>) getConfig().getList("arenas");
 
@@ -116,77 +118,78 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 				for (Entry<String, Object> e1 : data.entrySet()) {
 					// Check what data we're looking at
 					switch (e1.getKey()) {
-						// minimum coordinates
-						case "mincoords":
-							// Again with the suppression (I don't like warnings)
-							@SuppressWarnings("unchecked")
-							Map<String, Integer> mincoords = (Map<String, Integer>) e1.getValue();
+					// minimum coordinates
+					case "mincoords":
+						// Again with the suppression (I don't like warnings)
+						@SuppressWarnings("unchecked")
+						Map<String, Integer> mincoords = (Map<String, Integer>) e1.getValue();
 
-							// Loop through minimum coordinates
-							for (Entry<String, Integer> e2 : mincoords.entrySet()) {
-								// Is it x, y, or z?
-								switch (e2.getKey()) {
-									// It's x
-									case "x":
-										// Set the minimum x coordinate
-										minv.setX(e2.getValue());
-										break;
-									// y
-									case "y":
-										// Do the same thing for the y
-										minv.setY(e2.getValue());
-										break;
-									// z
-									case "z":
-										// And the z
-										minv.setZ(e2.getValue());
-										break;
-									default:
-										// Shouldn't ever happen (probably should put an error here)
-										break;
-								}
+						// Loop through minimum coordinates
+						for (Entry<String, Integer> e2 : mincoords.entrySet()) {
+							// Is it x, y, or z?
+							switch (e2.getKey()) {
+							// It's x
+							case "x":
+								// Set the minimum x coordinate
+								minv.setX(e2.getValue());
+								break;
+							// y
+							case "y":
+								// Do the same thing for the y
+								minv.setY(e2.getValue());
+								break;
+							// z
+							case "z":
+								// And the z
+								minv.setZ(e2.getValue());
+								break;
+							default:
+								// Shouldn't ever happen (probably should put an
+								// error here)
+								break;
 							}
-							break;
-						// It's maximum coordinates
-						case "maxcoords":
-							// No explanation, you've had too many already
-							@SuppressWarnings("unchecked")
-							Map<String, Integer> maxcoords = (Map<String, Integer>) e1.getValue();
+						}
+						break;
+					// It's maximum coordinates
+					case "maxcoords":
+						// No explanation, you've had too many already
+						@SuppressWarnings("unchecked")
+						Map<String, Integer> maxcoords = (Map<String, Integer>) e1.getValue();
 
-							// Loop the maximum coordinates
-							for (Entry<String, Integer> e2 : maxcoords.entrySet()) {
-								// x, y, or z?
-								switch (e2.getKey()) {
-									// x
-									case "x":
-										// set
-										maxv.setX(e2.getValue());
-										break;
-									// y
-									case "y":
-										// set
-										maxv.setY(e2.getValue());
-										break;
-									// z
-									case "z":
-										// set
-										maxv.setZ(e2.getValue());
-										break;
-									default:
-										// Shouldn't happen
-										break;
-								}
+						// Loop the maximum coordinates
+						for (Entry<String, Integer> e2 : maxcoords.entrySet()) {
+							// x, y, or z?
+							switch (e2.getKey()) {
+							// x
+							case "x":
+								// set
+								maxv.setX(e2.getValue());
+								break;
+							// y
+							case "y":
+								// set
+								maxv.setY(e2.getValue());
+								break;
+							// z
+							case "z":
+								// set
+								maxv.setZ(e2.getValue());
+								break;
+							default:
+								// Shouldn't happen
+								break;
 							}
-							break;
-						// It's the world!
-						case "world":
-							// Set the world
-							world = Bukkit.getWorld((String) e1.getValue());
-							break;
-						default:
-							// Shouldn't happen
-							System.out.println("Error!");
-							break;
+						}
+						break;
+					// It's the world!
+					case "world":
+						// Set the world
+						world = Bukkit.getWorld((String) e1.getValue());
+						break;
+					default:
+						// Shouldn't happen
+						System.out.println("Error!");
+						break;
 					}
 				}
 			}
@@ -267,17 +270,17 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 			return null;
 		}
 	}
-	
+
 	public Economy getEconomy() {
 		// Get the economy provider
-		RegisteredServiceProvider<Economy> ecoProvider = getServer().getServicesManager().getRegistration(Economy.class);
-		
+		RegisteredServiceProvider<Economy> ecoProvider = getServer().getServicesManager()
+				.getRegistration(Economy.class);
+
 		// If it exists
 		if (ecoProvider != null) {
 			// Return it
 			return ecoProvider.getProvider();
-		}
-		else {
+		} else {
 			// Shouldn't happen (error handling location?)
 			return null;
 		}
@@ -319,7 +322,8 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 
 							// Loop through possible blocks
 							while (iterator.hasNext()) {
-								// Set the hitBlock to the current block we're checking
+								// Set the hitBlock to the current block we're
+								// checking
 								hitBlock = iterator.next();
 
 								// If it's not air, STOP!
@@ -328,8 +332,10 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 								}
 							}
 
-							// If the block is on the ground of the WE selection...
-							if (s.contains(hitBlock.getLocation()) && hitBlock.getLocation().getY() == s.getMinimumPoint().getY()) {
+							// If the block is on the ground of the WE
+							// selection...
+							if (s.contains(hitBlock.getLocation())
+									&& hitBlock.getLocation().getY() == s.getMinimumPoint().getY()) {
 								// Set it to stained clay
 								hitBlock.setType(Material.STAINED_CLAY);
 
@@ -359,7 +365,7 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 
 		// If they're in a game...
 		if (p.hasMetadata("team")) {
-			//Loop through games
+			// Loop through games
 			for (Entry<String, PaintWarGame> e1 : games.entrySet()) {
 				// Get the game
 				PaintWarGame game = e1.getValue();
@@ -367,8 +373,9 @@ public final class PaintWarPlugin extends JavaPlugin implements Listener {
 				// If the player's in the game...
 				if (game.IsInGame(p)) {
 					// Get the WE selection
-					CuboidSelection s = new CuboidSelection(game.GetWorld(), game.GetMinLocationLoc(), game.GetMaxLocationLoc());
-					
+					CuboidSelection s = new CuboidSelection(game.GetWorld(), game.GetMinLocationLoc(),
+							game.GetMaxLocationLoc());
+
 					// Stop movement from the arena
 					if (!s.contains(e.getTo())) {
 						e.setCancelled(true);
